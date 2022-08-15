@@ -38,6 +38,8 @@ class KamarController extends Controller
             'tipe_kamar'     => 'required',
             'harga_kamar'    => 'required',
             'jumlah_kamar'   => 'required',
+            'gambar_kamar'   => 'required|image|mimes:jpeg,png,jpg,gif,svg',
+
         ]);
 
         //check if validation fails
@@ -45,15 +47,17 @@ class KamarController extends Controller
             return response()->json($validator->errors(), 422);
         }
 
-        // //upload image
-        // $image = $request->file('image');
-        // $image->storeAs('public/kamars', $image->hashName());
+        //upload image
+        $image = $request->file('gambar_kamar');
+        $image->storeAs('public/kamars', $image->hashName());
 
         //create kamar
         $kamar = Kamar::create([
             'tipe_kamar'     => $request->tipe_kamar,
-            'harga_kamar'     => $request->harga_kamar,
+            'harga_kamar'    => $request->harga_kamar,
             'jumlah_kamar'   => $request->jumlah_kamar,
+            'gambar_kamar'   => $image->hashName(),
+
         ]);
 
         //return response
@@ -72,50 +76,71 @@ class KamarController extends Controller
         return new KamarResource(true, 'Data Kamar Ditemukan!', $kamar);
     }
 
-    // /**
-    //  * update
-    //  *
-    //  * @param  mixed $request
-    //  * @param  mixed $kamar
-    //  * @return void
-    //  */
-    // public function update(Request $request, Kamar $kamar)
-    // {
-    //     //define validation rules
-    //     $validator = Validator::make($request->all(), [
-    //         'tipe_kamar'     => 'required',
-    //         'harga_kamar'    => 'required',
-    //         'jumlah_kamar'   => 'required',
-    //     ]);
+    /**
+     * update
+     *
+     * @param  mixed $request
+     * @param  mixed $kamar
+     * @return void
+     */
+    public function update(Request $request, Kamar $kamar)
+    {
+        //define validation rules
+        $validator = Validator::make($request->all(), [
+            'tipe_kamar'     => 'required',
+            'harga_kamar'    => 'required',
+            'jumlah_kamar'   => 'required',
+        ]);
 
-    //     //check if validation fails
-    //     if ($validator->fails()) {
-    //         return response()->json($validator->errors(), 422);
-    //     }
+        //check if validation fails
+        if ($validator->fails()) {
+            return response()->json($validator->errors(), 422);
+        }
 
-    //         //update kamar
-    //         $kamar->update([
-    //             'tipe_kamar'     => $request->tipe_kamar,
-    //             'harga_kamar'     => $request->harga_kamar,
-    //             'jumlah_kamar'   => $request->jumlah_kamar,
-    //         ]);
+        //check if image is not empty
+        if ($request->hasFile('gambar_kamar')) {
 
-    //     //return response
-    //     return new KamarResource(true, 'Data Kamar Berhasil Diubah!', $kamar);
-    // }
+            //upload image
+            $image = $request->file('gambar_kamar');
+            $image->storeAs('public/kamars', $image->hashName());
+
+            //delete old image
+            Storage::delete('public/kamars/'.$kamar->image);
+
+            //update kamar with new image
+            $kamar->update([
+                'tipe_kamar'     => $request->tipe_kamar,
+                'harga_kamar'    => $request->harga_kamar,
+                'jumlah_kamar'   => $request->jumlah_kamar,
+                'gambar_kamar'   => $image->hashName(),
+            ]);
+
+        } else {
+
+            //update kamar without image
+            $kamar->update([
+                'tipe_kamar'     => $request->tipe_kamar,
+                'harga_kamar'    => $request->harga_kamar,
+                'jumlah_kamar'   => $request->jumlah_kamar,
+            ]);
+        }
+
+        //return response
+        return new KamarResource(true, 'Data Kamar Berhasil Diubah!', $kamar);
+    }
 
     /**
      * destroy
      *
-     * @param  mixed $post
+     * @param  mixed $kamar
      * @return void
      */
     public function destroy(Kamar $kamar)
     {
-        // //delete image
-        // Storage::delete('public/posts/'.$post->image);
+        //delete image
+        Storage::delete('public/kamars'.$kamar->image);
 
-        //delete post
+        //delete kamar
         $kamar->delete();
 
         //return response

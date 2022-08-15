@@ -18,6 +18,7 @@ return new class extends Migration
             $table->string('tipe_kamar');
             $table->string('harga_kamar');
             $table->string('jumlah_kamar');
+            $table->string('gambar_kamar');
             $table->timestamps();
         });
     }

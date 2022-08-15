@@ -18,5 +18,6 @@ class Kamar extends Model
         'tipe_kamar',
         'harga_kamar',
         'jumlah_kamar',
+        'gambar_kamar',
     ];
 }
