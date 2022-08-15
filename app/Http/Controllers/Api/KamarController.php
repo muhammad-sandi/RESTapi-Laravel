@@ -58,4 +58,16 @@ class KamarController extends Controller
         //return response
         return new KamarResource(true, 'Data Kamar Berhasil Ditambahkan!', $kamar);
     }
+
+    /**
+     * show
+     *
+     * @param  mixed $post
+     * @return void
+     */
+    public function show(Kamar $kamar)
+    {
+        //return single post as a resource
+        return new KamarResource(true, 'Data Kamar Ditemukan!', $kamar);
+    }
 }
